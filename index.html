@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stroop Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #1d3557, #457b9d);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    #container {
+      background-color: #2a9d8f;
+      padding: 2rem;
+      border-radius: 10px;
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #e9c46a;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #word {
+      font-size: 48px;
+      font-weight: bold;
+      margin: 2rem 0 1rem 0;
+    }
+    #question-number {
+      font-size: 18px;
+      margin-bottom: 1rem;
+    }
+    .color-btns {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+    .color-btns button {
+      width: 100px;
+    }
+    #result {
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div id="start-screen">
+      <h2>Petunjuk Stroop Test</h2>
+      <p>Pilih warna teks dari kata yang ditampilkan, bukan bacaannya!</p>
+      <input type="text" id="username" placeholder="Masukkan Nama" /><br /><br />
+      <audio id="bgm" controls loop>
+        <source src="musikku.mp3" type="audio/mpeg">
+        Your browser does not support the audio tag.
+      </audio><br /><br />
+      <button onclick="startTest()">Mulai Test</button>
+    </div>
+
+    <div id="test-screen" style="display:none;">
+      <div id="question-number"></div>
+      <div id="word"></div>
+      <div class="color-btns"></div>
+      <div id="result"></div>
+    </div>
+
+    <div id="end-screen" style="display:none;">
+      <h2>Hasil Test</h2>
+      <p id="score"></p>
+      <p id="correct"></p>
+      <p id="wrong"></p>
+      <p id="average"></p>
+      <button onclick="downloadResult()">Download Hasil</button>
+    </div>
+  </div>
+
+  <script>
+    const words = ["Merah", "Hijau", "Biru", "Kuning"];
+    const colors = ["red", "green", "blue", "yellow"];
+    const totalQuestions = 60;
+
+    let current = 0;
+    let score = 0;
+    let correct = 0;
+    let wrong = 0;
+    let timeRecords = [];
+    let startTime;
+    let userName = "";
+
+    const wordDiv = document.getElementById("word");
+    const questionNumberDiv = document.getElementById("question-number");
+    const btnContainer = document.querySelector(".color-btns");
+
+    function startTest() {
+      userName = document.getElementById("username").value || "Anonim";
+      document.getElementById("start-screen").style.display = "none";
+      document.getElementById("test-screen").style.display = "block";
+      nextQuestion();
+    }
+
+    function nextQuestion() {
+      if (current >= totalQuestions) {
+        showResult();
+        return;
+      }
+
+      questionNumberDiv.textContent = `Soal ke-${current + 1} dari ${totalQuestions}`;
+
+      btnContainer.innerHTML = "";
+      const wordIndex = Math.floor(Math.random() * words.length);
+      const colorIndex = Math.floor(Math.random() * colors.length);
+
+      wordDiv.textContent = words[wordIndex];
+      wordDiv.style.color = colors[colorIndex];
+
+      startTime = Date.now();
+
+      colors.forEach((color, idx) => {
+        const btn = document.createElement("button");
+        btn.textContent = color.charAt(0).toUpperCase() + color.slice(1);
+        btn.style.backgroundColor = color;
+        btn.onclick = () => evaluateAnswer(color === colors[colorIndex]);
+        btnContainer.appendChild(btn);
+      });
+    }
+
+    function evaluateAnswer(isCorrect) {
+      const elapsed = (Date.now() - startTime) / 1000;
+      timeRecords.push(elapsed);
+
+      if (isCorrect) {
+        score += 10;
+        correct++;
+      } else {
+        score -= 5;
+        wrong++;
+      }
+
+      current++;
+      nextQuestion();
+    }
+
+    function showResult() {
+      document.getElementById("test-screen").style.display = "none";
+      document.getElementById("end-screen").style.display = "block";
+
+      const avgTime = (timeRecords.reduce((a, b) => a + b, 0) / timeRecords.length).toFixed(2);
+      document.getElementById("score").textContent = `Skor Akhir: ${score}`;
+      document.getElementById("correct").textContent = `Jawaban Benar: ${correct}`;
+      document.getElementById("wrong").textContent = `Jawaban Salah: ${wrong}`;
+      document.getElementById("average").textContent = `Rata-rata waktu: ${avgTime} detik`;
+    }
+
+    function downloadResult() {
+      const data = `Nama: ${userName}\nSkor: ${score}\nBenar: ${correct}\nSalah: ${wrong}\nRata-rata waktu: ${(timeRecords.reduce((a, b) => a + b, 0) / timeRecords.length).toFixed(2)} detik`;
+      const blob = new Blob([data], { type: "text/plain" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `stroop_test_result_${userName}.txt`;
+      a.click();
+    }
+  </script>
+</body>
+</html>
