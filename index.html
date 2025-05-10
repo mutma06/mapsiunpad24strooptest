@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -64,7 +64,7 @@
       <input type="text" id="username" placeholder="Masukkan Nama" /><br /><br />
       <audio id="bgm" controls loop>
         <source src="musikku.mp3" type="audio/mpeg">
-        Your browser does not support the audio tag.
+        Browser Anda tidak mendukung audio.
       </audio><br /><br />
       <button onclick="startTest()">Mulai Test</button>
     </div>
@@ -88,7 +88,7 @@
 
   <script>
     const words = ["Merah", "Hijau", "Biru", "Kuning"];
-    const colors = ["Merah", "Hijau", "Biru", "Kuning"];
+    const colors = ["red", "green", "blue", "yellow"];
     const totalQuestions = 60;
 
     let current = 0;
@@ -129,7 +129,7 @@
 
       colors.forEach((color, idx) => {
         const btn = document.createElement("button");
-        btn.textContent = color.charAt(0).toUpperCase() + color.slice(1);
+        btn.textContent = words[idx]; 
         btn.style.backgroundColor = color;
         btn.onclick = () => evaluateAnswer(color === colors[colorIndex]);
         btnContainer.appendChild(btn);
@@ -168,7 +168,7 @@
       const blob = new Blob([data], { type: "text/plain" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = `stroop_test_result_${userName}.txt`;
+      a.download = `stroop_test_hasil_${userName}.txt`;
       a.click();
     }
   </script>
